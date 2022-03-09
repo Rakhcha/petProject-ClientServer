@@ -7,26 +7,25 @@ public class Server {
 
     public static void main(String[] args) {
 
-        try (ServerSocket server = new ServerSocket(8000))
-        {
+        try (ServerSocket server = new ServerSocket(8000)) {
             System.out.println("Server started!");
 
-            while (true){
-                try (Phone phone = new Phone(server)){
+            while (true) {
+                    Phone phone = new Phone(server);
+                    new Thread(() -> {
+                        String request = phone.readLine();
+                        String response = request.equalsIgnoreCase("Ilya Rakhcheev") ? "He live in Moscow - Russia" : "I don't know";
+                        try { Thread.sleep(5000); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                        phone.writeLine(response);
 
-                    String request = phone.readLine();
-                    String response = request.equalsIgnoreCase("Ilya Rakhcheev") ? "He live in Moscow - Russia" : "I don't know";
-                    phone.writeLine(response);
+                        try { phone.close(); } catch (IOException e) { throw new RuntimeException(e); }
 
-                    System.out.println("Request " + request);
-                    System.out.println("Response " + response);
-
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
+                        System.out.println("Request " + request);
+                        System.out.println("Response " + response);
+                    }).start();
             }
 
-        }catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
